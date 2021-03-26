@@ -18,6 +18,7 @@ class BaseTool:
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
                              stdin=subprocess.PIPE,
+                             bufsize=100000,
                              shell=True)
 
         (output, error) = p.communicate()

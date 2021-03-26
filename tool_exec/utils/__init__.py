@@ -36,8 +36,15 @@ def find_bin(bin_name: str) -> str:
         # TODO aliascheck
         array = _output.split("is")
         bin_path = array[-1]
-        bin_path = re.sub(r"[\n\t\s]*", "", bin_path)
+        bin_path = clean_eof_tabs(bin_path)
         return bin_path
     else:  # TODO [']
         print("undefined")
         return ""
+
+
+def clean_eof_tabs(string: str)-> str:
+    return re.sub(r"[\n\t\s]*", "", string)
+
+def clean_n(string: str) -> str:
+    return ' '.join(string.split())

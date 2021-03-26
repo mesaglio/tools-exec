@@ -42,13 +42,9 @@ output = nmap.run()
                         "name": "http-wordpress-enum",
                         "results": [
                             {
-                                "path": "/wp-content/plugins/akismet/"
-                            },
-                            {
+                                "category": "plugins",
+                                "path": "/wp-content/plugins/akismet/",
                                 "name": "akismet"
-                            },
-                            {
-                                "category": "plugins"
                             }
                         ]
                     },
@@ -94,5 +90,12 @@ print(json.dumps(result, indent=4))
         "/.cvs (Status: 200) [Size: 1019]"
         ]
 }
-        '''
+'''
+```
+
+### To run tests
+
+```
+# In local
+-> make test-local
 ```

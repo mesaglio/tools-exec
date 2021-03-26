@@ -1,28 +1,28 @@
 from tool_exec.tools import BaseTool
-from tool_exec.utils import find_bin
+from tool_exec.utils import find_bin,clean_eof_tabs,clean_n
 import os
 import xmltodict
+from typing import OrderedDict,List
 
 
 class Nmap(BaseTool):
     def __init__(self, arguments: str):
         super().__init__(arguments)
         self._arguments = self.arguments
-        self._bin = find_bin("nmap")
 
     def run(self):
-        full_command = f"{self._bin} -oX - {self._arguments}"
+        full_command = f"{find_bin('nmap')} -oX - {self._arguments}"
         output, error = self._run(full_command)
         if 'error' in error.lower():
             return self._parse_stderr(error)
         return self._parse_stdout(output)
 
     def _parse_stdout(self, stdout: str) -> dict:
-        parser = self._xml_parser(stdout)
+        parser = self.xml_parser(stdout)
         return {'Success': True, 'Params': self._arguments, 'Data': parser}
 
     @staticmethod
-    def _xml_parser(output: str) -> dict:
+    def xml_parser(output: str) -> dict:
         to_return = {}
         parse = xmltodict.parse(output).get('nmaprun')
         to_return['params'] = parse.get('@args')
@@ -38,22 +38,37 @@ class Nmap(BaseTool):
                          'more_info': port.get('service').get('@extrainfo', ''),
                          'scripts': []}
             if port.get('script'):
-                for script in port.get('script'):
-                    script_info = {'name': script.get('@id')}
-                    if script.get('table'):
-                        script_info['results'] = []
-                        if script.get('table').get('elem'):
-                            for info in script.get('table').get('elem'):
-                                result_info = {info.get('@key'): info.get('#text')}
-                                script_info['results'].append(result_info)
-                        elif script.get('table').get('table'):
-                            for cve_info in script.get('table').get('table'):
-                                cve = {}
-                                for elem in cve_info.get('elem'):
-                                    cve[elem.get('@key')] = elem.get('#text')
-                                script_info['results'].append(cve)
-                        else:
-                            script_info['output'] = script.get('@output')
+                scripts = port.get('script')
+                if isinstance(scripts, OrderedDict):
+                    script_info = {
+                        'name': scripts.get('@id'),
+                        'output': clean_n(scripts.get('@output'))
+                    }
                     port_info['scripts'].append(script_info)
+                else:
+                    for script in scripts:
+                        script_info = {'name': script.get('@id')}
+                        if script.get('table'):
+                            script_info['results'] = []
+                            if isinstance(script.get('table'),List):
+                                for info in script.get('table'):
+                                    result_info = {}
+                                    for elem in info.get('elem'):
+                                        result_info[elem.get('@key')] = elem.get('#text')
+                                    script_info['results'].append(result_info)
+                            elif script.get('table').get('elem'):
+                                result_info = {}
+                                for info in script.get('table').get('elem'):
+                                    result_info[info.get('@key')]= info.get('#text')
+                                script_info['results'].append(result_info)
+                            elif script.get('table').get('table'):
+                                for cve_info in script.get('table').get('table'):
+                                    cve = {}
+                                    for elem in cve_info.get('elem'):
+                                        cve[elem.get('@key')] = elem.get('#text')
+                                    script_info['results'].append(cve)
+                        else:
+                            script_info['output'] = clean_n(script.get('@output'))
+                        port_info['scripts'].append(script_info)
             to_return['results'].append(port_info)
         return to_return
