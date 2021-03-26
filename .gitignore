@@ -2,3 +2,4 @@ __pycache__/
 venv
 tool_exec/test
 tool_exec/logger
+.idea/
