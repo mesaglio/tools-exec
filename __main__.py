@@ -1,13 +1,10 @@
 import logging
 import json
-from sherlock.logger import logger
-from sherlock.tools.gobuster import Gobuster
-from sherlock.tools.ls import Ls
+from tool_exec.logger import logger
+from tool_exec.tools.gobuster import Gobuster
+from tool_exec.tools.nmap import Nmap
 
-if __name__ == "__main__":
-    args = 'dir -w SecLists-master/Discovery/Web-Content/common.txt --wildcard -u 131.255.4.19'
-    gb = Gobuster(args)
-    result = gb.run()
-    print(json.dumps(result,indent=4))
-    ls = Ls('-la')
-    print(ls.run())
+if __name__ == "__main__":#TODO to test in local
+    nmap = Nmap("-p8001,80 -oX - -sV --script http-wordpress-enum,vulners localhost")
+    output = nmap.run()
+    print(json.dumps(output,indent=4))

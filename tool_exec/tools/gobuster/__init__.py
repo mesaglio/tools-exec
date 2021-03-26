@@ -1,16 +1,18 @@
 import subprocess
 from typing import Dict
-from sherlock.tools import BaseTool
+from tool_exec.tools import BaseTool
 import re
+from tool_exec.utils import find_bin
 
 
 class Gobuster(BaseTool):
     def __init__(self, arguments: str):
         super().__init__(arguments)
         self._arguments = self.arguments
+        self._bin = find_bin("gobuster")
 
     def run(self):
-        output, error = self._run(self.get_module_name(__name__))
+        output, error = self._run(self._bin)
         if 'error' in error.lower():
             return self._parse_stderr(error)
         return self._parse_stdout(output)
