@@ -12,7 +12,7 @@ class Gobuster(BaseTool):
         self._bin = find_bin("gobuster")
 
     def run(self):
-        output, error = self._run(self._bin)
+        output, error = self._run(f"{self._bin} {self._arguments}")
         if 'error' in error.lower():
             return self._parse_stderr(error)
         return self._parse_stdout(output)
