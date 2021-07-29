@@ -97,5 +97,5 @@ print(json.dumps(result, indent=4))
 
 ```
 # In local
--> make test-local
+-> poetry install && poetry run make local-test
 ```

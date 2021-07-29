@@ -1,5 +1,5 @@
 __pycache__/
-venv
+.venv
 tool_exec/test
 tool_exec/logger
 .idea/
